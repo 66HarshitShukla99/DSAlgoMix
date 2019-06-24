@@ -8,7 +8,7 @@ public class CompletableFutureDemo {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 
-		Future<Integer>f=findDoubleAsync(23);
+		Future<Void>f=findDoubleAsync(23);
 		while(!f.isDone()) {
 			System.out.println("Trying");
 			Thread.sleep(1500);
@@ -38,10 +38,10 @@ public class CompletableFutureDemo {
 		return 2*k;
 	}
 
-	private static Future<Integer> findDoubleAsync(int k) {
-		CompletableFuture<Integer> cf = CompletableFuture.supplyAsync(()->doubleIt(8)).
+	private static Future<Void> findDoubleAsync(int k) {
+		CompletableFuture<Void> cf = CompletableFuture.supplyAsync(()->doubleIt(8)).
 				exceptionally(l->0).
-				thenApplyAsync(j->root(j));
+				thenApplyAsync(j->root(j)).thenRun(()->System.out.println("Finished"));
 		return cf;
 	}
 
