@@ -1,12 +1,21 @@
 package com.graph;
 
+/*
+ * Given a matrix of 0,1 & 9 find the shortest path from arr(0,0)=1 to unique 9 in the matrix
+ */
 public class AmazonQuesNew {
 
+	static int kRight;
+	static int kleft;
+	static int kDown;
+	static int kUp;
+	static int i;
+	static int j;
 	public static void main(String[] args) {
 
 		int [][] arr = {
 						{1,1,1},
-						{1,1,1},
+						{0,1,1},
 						{1,9,1}
 						};
 		
@@ -17,48 +26,115 @@ public class AmazonQuesNew {
 				bool[i][j]=false;
 			}
 		}
-		Integer count=0;
-		System.out.println(findLowestPath(arr, bool,0,0,count));
-	}
-	
-	public static int findLowestPath(int [][] arr, boolean [][] bool, 
-			int i, int j,Integer count) {
-		//System.out.println("i ::"+i+" & j :"+j);
-		
-		if(i < 0 || j < 0 || i>=arr.length|| j>= arr.length || (arr[i][j]==0 || bool[i][j])) {
-			return Integer.MAX_VALUE;
+		boolean [][] visited = new boolean[arr.length][arr.length];
+		int [][] dp = new int[arr.length][arr.length];
+		for(int i=0; i < arr.length;i++) {
+			for(int j=0; j < arr.length;j++) {
+				visited[i][j]=false;
+				dp[i][j]=Integer.MAX_VALUE;
+			}
 		}
+		visited[0][0]=true;
+		dp[0][0]=0;
+		System.out.println(findSmallestPath(arr,visited,dp,0,0));
+		for(int i=0; i < arr.length;i++) {
+			for(int j=0; j < arr.length;j++) {
+				System.out.print(dp[i][j]+",");
+			}
+			System.out.println();
+		}
+	}
+	private static int findSmallestPath(int[][] arr, boolean [][] visited, int [][] dp, int i, int j) {
 		
-		else if(arr[i][j]==9) {
-			//System.out.println("Found 9 at i ::" +i+ " j ::"+j+" with count :: "+count);
-			return count;
+		//Right
+		
+		if(j+1 < arr.length &&!visited[i][j+1] && arr[i][j+1]==1) {
+			visited[i][j+1]=true;
+			dp[i][j+1]=relax(dp, i, j+1)+1;
+			kRight=findSmallestPath(arr, visited, dp, i, j+1);
+			
+		}
+		if(j-1 >=0 &&!visited[i][j-1] && arr[i][j-1]==1) {
+			visited[i][j-1]=true;
+			dp[i][j-1]=relax(dp, i, j-1)+1;
+			kleft=findSmallestPath(arr, visited, dp, i, j-1);
+			
+		}
+		if(i+1 < arr.length && !visited[i+1][j] && arr[i+1][j]==1) {
+			visited[i+1][j]=true;
+			dp[i+1][j]=relax(dp, i+1, j)+1;
+			kDown=findSmallestPath(arr, visited, dp, i+1, j);
+			
+		}
+		if(i-1 >=0 && !visited[i-1][j] && arr[i-1][j]==1) {
+			visited[i-1][j]=true;
+			dp[i-1][j]=relax(dp, i-1, j)+1;
+			kUp=findSmallestPath(arr, visited, dp, i-1, j);
+			
+		}
+		//Found 9
+		
+		if(j+1 < arr.length &&!visited[i][j+1] && arr[i][j+1]==9) {
+				dp[i][j+1]=relax(dp,i,j+1)+1;
+				AmazonQuesNew.i=i;
+				AmazonQuesNew.j=j+1;
+			
+			//return 0;
+			return dp[i][j+1];
+		}
+		if(j-1 >=0 &&!visited[i][j-1] && arr[i][j-1]==9) {
+			dp[i][j-1]=relax(dp,i,j-1)+1;
+				AmazonQuesNew.i=i;
+				AmazonQuesNew.j=j-1;
+			return dp[i][j-1];
+		}
+		if(i+1 < arr.length && !visited[i+1][j] && arr[i+1][j]==9) {
+			dp[i+1][j]=relax(dp,i+1,j)+1;
+				AmazonQuesNew.i=i+1;
+				AmazonQuesNew.j=j;
+			return dp[i+1][j];
+		}
+		if(i-1 >=0 && !visited[i-1][j] && arr[i-1][j]==9) {
+			dp[i-1][j]=relax(dp,i-1,j)+1;
+				AmazonQuesNew.i=i-1;
+				AmazonQuesNew.j=j;
+			return dp[i-1][j];
+		}
+		return dp[AmazonQuesNew.i][AmazonQuesNew.j];
+		
+	}
+
+
+	private static int relax(int[][] dp, int i, int j) {
+		if(i==0 && j==0) //0 0
+			return Math.min(Math.min(dp[i][j],dp[i][j]+1),Math.min(dp[i+1][j],dp[i][j]));
+		else if(i==0 && j==dp.length-1) {// 0, 2
+			return Math.min(dp[i][j-1],dp[i+1][j]);
+		}
+		else if(i==dp.length-1 && j==0) { // 2,0
+			return Math.min(dp[i-1][j], dp[i][j+1]);
+		}
+		else if(i==dp.length-1 && j== dp.length-1) { //2,2
+			return Math.min(dp[i-1][j], dp[i][j-1]);
+		}
+		else if(j==0 && i < dp.length-1 && i > 0 ) { // X,0
+			return Math.min(Math.min(dp[i-1][j], dp[i+1][j]), dp[i][j+1]);
+		}
+		else if(j==dp.length-1 && i < dp.length-1 && i > 0 ) { //X,2
+			return Math.min(Math.min(dp[i-1][j],dp[i+1][j]), dp[i][j-1]);
+		}
+		else if(i==0 && j < dp.length-1 && j > 0) { //0,X
+			return Math.min(Math.min(dp[i][j-1],dp[i][j+1]), dp[i+1][j]);
+		}
+		else if(i==dp.length-1 && j < dp.length-1 && j > 0) { //2,X
+			return Math.min(Math.min(dp[i][j-1],dp[i][j+1]), dp[i-1][j]);
 		}
 		else {
-			if(!bool[i][j] && arr[i][j]==1) {
-			bool[i][j]=true;
-			
-			int k1=findLowestPath(arr, bool, i, j-1,count+1);
-			int k2=findLowestPath(arr, bool, i, j+1,count+1);
-			int k3=findLowestPath(arr, bool, i+1, j,count+1);
-			int k4=findLowestPath(arr, bool, i-1, j,count+1);
-			
-			
-			System.out.println("k1 :"+k1+" k2 : "+k2+ " k3 : "+k3+" k4 :"+k4);
-			
-			if(k1!=0 || k2!=0 )
-			k1=Math.min(k1, k2);
-			if(k3!=0 || k4!=0 )
-			k3=Math.min(k3, k4);
-			if(k1!=0 ||  k3!=0) {
-				
-			count=Math.min(k1, k3);
-			return count;
-			}
-			else return 0;
-						  
-			}
-			return count;
+			return Math.min(Math.min(dp[i-1][j], dp[i+1][j]),
+					Math.min(dp[i][j-1], dp[i][j+1]));
 		}
+		
 	}
+	
 
 }
