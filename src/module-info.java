@@ -1,0 +1,9 @@
+/**
+ * 
+ */
+/**
+ * @author HulkSmash
+ *
+ */
+module DSAlgo {
+}
